@@ -15,7 +15,7 @@ The rules adoped in this simulaiton follows the speculation of [kamikaze28 on to
 'Bonus card' contains tiles from 6 to 'largest tile on the board divided by 8', drawn uniformly at random.
 
 # Visualisations
-![alt text]https://github.com/InfinitesimalHare/gym-threes/blob/8b01a2e2b58e27d41acede60b607e450687ba50c/testoutput/humaninteract.gif)
+![alt text](https://github.com/InfinitesimalHare/gym-threes/blob/8b01a2e2b58e27d41acede60b607e450687ba50c/testoutput/humaninteract.gif)
 
 # Installation
 ```
