@@ -14,7 +14,8 @@ The rules adoped in this simulaiton follows the speculation of [kamikaze28 on to
 * **How new tiles are drawn:** At the start of the game, a stack of 12 tiles consists of '1'* 4, '2'* 4 and '3' * 4 is drawn and randomly shuffled. This is called 'Basic card' stack. The first 9 tiles of the 'Basic card' stack are randomly inserted to the starting board. When the highest tile on the board is higher or equal to 48, there is a 1/21 probability that the next tile is drawn from 'Bonus card' stack. Otherwise, the new tiles are always drawn from the first card left in the 'Basic card' stack. If there is no tile left, 'Basic card' stack are refilled immediately with 12 new tiles.
 'Bonus card' contains tiles from 6 to 'largest tile on the board divided by 8', drawn uniformly at random.
 
-![Visualisations](https://github.com/InfinitesimalHare/gym-threes/tree/main/testoutput/humaninteract.gif?raw=true)
+# Visualisations
+![alt text](https://github.com/InfinitesimalHare/gym-threes/tree/main/testoutput/humaninteract.gif)
 
 # Installation
 ```
