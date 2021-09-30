@@ -2,7 +2,6 @@
 
 import gym_threes.envs.threes_env as threes
 import gym_threes.envs.render_img as img
-import gym
 from matplotlib.animation import FuncAnimation, PillowWriter
 from pathlib import Path
 import pickle
@@ -34,20 +33,21 @@ for i in range(3):
 
 
 
-# Run a fully random playthrough and save it as .gif
+# Run three fully random playthrough with middleStart = True, and save the large playthrough as .gif
 print('The following is a fully random playthrough.')
 env.seed(seed = env.currentSeed)
-obs = env.reset()
-history = [[obs, env.nextTile, 0, None, None]]
-env.render()
-while True:
-    action = env.np_random.choice(env.legalNextMoves)
-    print('Action: ', action)
-    obs, reward, done, _ = env.step(action)
-    history.append([obs,  env.nextTile, env.score, action, reward])
+for i in range(3):
+    obs = env.reset(middleStart= True)
+    history = [[obs, env.nextTile, 0, None, None]]
     env.render()
-    if done:
-        break
+    while True:
+        action = env.np_random.choice(env.legalNextMoves)
+        print('Action: ', action)
+        obs, reward, done, _ = env.step(action)
+        history.append([obs,  env.nextTile, env.score, action, reward])
+        env.render()
+        if done:
+            break
 recorder = img.RecordThrees(history)
 anim = FuncAnimation(recorder.fig, func = recorder.anim_update, frames=range(len(history)), interval=1000)
 writergif = PillowWriter(fps=1) 
@@ -60,7 +60,7 @@ env.reset()
 env.render(mode='human_interact')
 
 # Since the previous line open a tkinter window, the rest of the script will not run automatically.
-outfile = 6
+outfile = 1
 with open (Path(__file__).parent/'gym_threes'/'records'/'{}'.format(outfile), 'rb') as fp:
     history = pickle.load(fp)
 recorder = img.RecordThrees(history)

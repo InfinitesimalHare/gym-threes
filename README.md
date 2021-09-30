@@ -13,6 +13,7 @@ The rules adoped in this simulaiton follows the speculation of [kamikaze28 on to
 * **Objective:** Achienve the highest score. 
 * **How new tiles are drawn:** At the start of the game, a stack of 12 tiles consists of '1'* 4, '2'* 4 and '3' * 4 is drawn and randomly shuffled. This is called 'Basic card' stack. The first 9 tiles of the 'Basic card' stack are randomly inserted to the starting board. When the highest tile on the board is higher or equal to 48, there is a 1/21 probability that the next tile is drawn from 'Bonus card' stack. Otherwise, the new tiles are always drawn from the first card left in the 'Basic card' stack. If there is no tile left, 'Basic card' stack are refilled immediately with 12 new tiles.
 'Bonus card' contains tiles from 6 to 'largest tile on the board divided by 8', drawn uniformly at random.
+* **The end of the game:** The game ends when no valid operation can be made, i.e. there is neither empty tiles nor possible tile merging. In this particular environment, we do not allow the merging of two '12288' tiles, and therefore the maximum tile achievable is 12288.  
 
 # Visualisations
 ![alt text](https://github.com/InfinitesimalHare/gym-threes/blob/8b01a2e2b58e27d41acede60b607e450687ba50c/testoutput/humaninteract.gif)
@@ -27,6 +28,7 @@ The package is tested on Python 3.9.1 and gym 0.10.5 (At the moment, this is the
 # How to use 
 ```
 import gym
+import gym-threes #  this must be included
 import pickle
 from pathlib import Path
 
@@ -35,7 +37,7 @@ env = gym.make('threes-v0')
 
 obs = env.reset()
 history = [[obs[0], obs[1], 0, None, None]]
-env.render() #render(mode = 'uint64) print the current state of the board in STDOUT. reder(mode='human') returns a matplotlib figure object containing a screenshot of the current state of the game.
+env.render() #render(mode = 'uint64) print the current state of the board in STDOUT. render(mode='human') returns a matplotlib figure object containing a screenshot of the current state of the game.
 while True:
     action = env.np_random.choice(env.legalNextMoves)
     obs, reward, done, _ = env.step(action)
@@ -45,9 +47,18 @@ while True:
     fig.savefig('image.png')
     if done:
         break
-
+#  pickle the playthrough history
 with open('outfile', 'wb') as fp:
     pickle.dump(history, fp)
+# reset the game
+env.reset(middleStart = True)
+# By default, middleStart = False. This resets the game similar to the mobile game (with four tiles each of '1', '2' and '3' in random locations).
+# For the purpose of deep reenforce learning, we also include 'middleStart' mode, which reset the board by drawing from all possible states uniformly at random.
+# Notice that it is possible (and likely) that by setting `middleStart = True`, the game is reset to an ending state. This is indicated by 'env.legalNextMoves is None'. One can choose to e.g. repeat the reset command when this is the case.
+
+# The following renders a .png and save it to OUTPUT_DIR
+fig = env.render('human')
+fig.savefig(OUTPUT_DIR) 
 
 # The following renders a Tk GUI that allows human player to play the game. The history of each play-through is saved as a pickle file in 'gym-threes/gym_threes/records'.
 env.reset()

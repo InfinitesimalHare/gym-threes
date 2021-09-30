@@ -22,13 +22,14 @@ def isMerge(input:int)-> int:
              isMerge(0x33) = 4
              isMerge(0x03) = -1
              isMerge(0x30) = 3
+             Notice that we also require isMerge(0xff) = -1
      """
     a = input >>4 & 0xf
     if a==0:
         return -1
     b = input & 0xf
     if a == b:
-        if a>2:
+        if a>2 and a<15:
             return a+1
         else: 
             return -1 
@@ -50,10 +51,7 @@ if __name__ == "__main__":
             continue
         for i in range(4):
             digit = row>> 4*i & 0xf
-            if digit == 15:
-                scoreTable[row] = -1
-                break
-            elif digit >2:
+            if digit >2:
                 scoreTable[row] += 3**(digit-2)
                 
         for i in range(3):

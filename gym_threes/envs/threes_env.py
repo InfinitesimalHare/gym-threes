@@ -10,7 +10,7 @@ from .render_img import RecordThrees
 
 from tkinter import messagebox
 import pickle
-
+import numpy as np
 
 def keystoint(x):
     return {int(k): v for k, v in x}
@@ -92,24 +92,30 @@ class ThreesEnv(gym.Env):
     +a when merging a and a
       """ 
     self.legalMoves(moveTable_L= LEFTTABLE, moveTable_R= RIGHTTABLE)
-    done = not self.legalNextMoves
+    done = not self.legalNextMoves 
     if done:
       next = None
       reward = 0
       # self.history.append([(self.board_h, next), self.nextTile, self.score, action, reward])
     return (self.board_h, next), reward, done, {}
-  def reset(self):
+  def reset(self, middleStart = False):
     # Reset the state of the environment to an initial state
     # seed is used to generate all the random new tiles of the game
-    self.newTiles = [1]*4+[2]*4+[3]*4
-    self.np_random.shuffle(self.newTiles)
-    initialboard = self.newTiles[0:9]+[0]*7
-    self.newTiles = self.newTiles[9:]
-    self.np_random.shuffle(initialboard)
-    self.board_h = int( ''.join(map(str, initialboard)), 16)
-    self.max = 0
-    self.score = 0
-    self._genNextTile()
+    if middleStart:
+      self.board_h = self.np_random.randint(low = 0, high = 16**16, dtype = np.uint64).item()
+      # initialboard = list(self.np_random.randint(low = 0, high = 15, size = 16))
+      self.newTiles = [1]*4+[2]*4+[3]*4
+      # scoring the initial board
+      self._scoring(scoreTable=SCORETABLE)
+    else:
+      self.newTiles = [1]*4+[2]*4+[3]*4
+      self.np_random.shuffle(self.newTiles)
+      initialboard = self.newTiles[0:9]+[0]*7
+      self.newTiles = self.newTiles[9:]
+      self.np_random.shuffle(initialboard)
+      self.score = 0
+      self.board_h = int( ''.join(map(str, initialboard)), 16)
+    self._genNextTile() # thid include initiating self.max
     self.servedTiles = [self.nextTile] # we should consider past served tile in the future
     next = self.nextTile -1 if self.nextTile<=3 else 3
     self.legalNextMoves=self.legalMoves()
@@ -154,8 +160,16 @@ class ThreesEnv(gym.Env):
         self._genNextTile()
     self.board_h = temp_row
     #print("final: {}".format(hex(self.board_h)))
+  def _scoring(self, scoreTable = None) -> int: # update .board_h according to leftTable/rightTable
+    #  scoring the current board
+    self.score = 0
+    for i in range(4):
+      current_row = self.board_h >> 16*(3-i) & 0xffff
+      self.score += scoreTable[current_row] 
   def _genNextTile(self) -> int:
       # return the next tile in hex number
+      # first update self.max
+      self.maxTile()
       if self.max >= 7 and self.np_random.random() < 1/21:
           self.nextTile = self.np_random.choice(range(4, self.max-2)).item() #change np type to python native type
       else:
@@ -233,7 +247,7 @@ class ThreesEnv(gym.Env):
     if self.nextTile<= 3:
       output = str(self.nextTile)
     else:
-      output = '6-{}'.format(3*2**(self.boardBinary.max-6))
+      output = '6-{}'.format(3*2**(self.max-6))
     return output
   def _uint64toMatrix(self) -> list:
     board_matrix = []# can not do [[0]*4]*4, because this makes all the rows refer to the same row
